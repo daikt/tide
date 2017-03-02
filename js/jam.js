@@ -1,27 +1,25 @@
 $(function() {
 
-  var map = new OpenLayers.Map(
-    "map",
-    {
-      // 地図の表示段階数
-      numZoomLevels: 4
-      // 地図の表示解像度
-      //resolutins: [0.25, 0.5, 1.0, 2.0]
-    }
-  );
+  var extent = [0, 0, 900, 500];
+  var projection = new ol.proj.Projection({
+    code: 'xkcd-image',
+    units: 'pixels',
+    extent: extent
+  });
 
-  var layer = new OpenLayers.Layer.Image(
-    "Image LAyer",
-    "/tide/matsuoka/image/initial.bmp",
-    new OpenLayers.Bounds(0,0,900,500), // 画像を投影する矩形の左下・右上座標
-    new OpenLayers.Size(900,500)
-  );
+  var map = new ol.Map({
+    layers: [],
+    target: 'map',
+    view: new ol.View({
+      projection: projection,
+      center: ol.extent.getCenter(extent),
+      zoom: 2,
+      minZoom: 2,
+      maxZoom: 4
+    })
+  });
 
-  map.addLayers([layer]);
-  map.setCenter(new OpenLayers.LonLat(450, 250));
-
-
-/*
+  // サーバから画像ファイル名リストを取得する
   $.ajax({
     url: "/tide/php/getFileList.php",
     cache: false,
@@ -31,20 +29,40 @@ $(function() {
     success: function(json) {
 
       var data = $.parseJSON(json);
-      var i=0;
-      var timer = setInterval(function(){
-        var imgfile = "/tide" + data[i++].image.substr(2);
+
+      // レイヤリスト生成
+      var layers = [];
+      var imgs = [];
+      for (var i=0; data[i]; i++) {
+        var imgfile = "/tide" + data[i].image.substr(2);
         console.log(imgfile);
-        $('#tide_image').attr('src', imgfile);
-        $('#fn_area label').text(imgfile);
-        if (i >= data.length){
+        var tmp_layer = new ol.layer.Image({
+          source: new ol.source.ImageStatic({
+            url: imgfile,
+            projection: projection,
+            imageExtent: extent
+          })
+        });
+        layers.push(tmp_layer);
+        imgs.push(imgfile);
+      }
+
+      // レイヤを切換えて表示する
+      var j=0;
+      var timer = setInterval(function(){
+        map.addLayer(layers[j]);
+        $('#fn_area label').text(imgs[j]);
+        // 画面がチラつくので５個前から削除する
+        if (j > 5) {
+          map.removeLayer(layers[j-6]);
+        }
+        j++;
+        if (j >= layers.length){
           clearInterval(timer);
         }
       }, 100);
 
     }
   });
-*/
-
 
 });
