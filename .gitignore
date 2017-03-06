@@ -5,4 +5,5 @@ matsuoka
 getFileList.php
 getFileList.php.*
 lib
+*_bk*.js
 

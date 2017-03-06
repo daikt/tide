@@ -1,7 +1,48 @@
 
 .mapdiv {
+  position: absolute;
   width: 900px;
   height: 500px;
   border: 3px solid #ccc;
 }
+
+#fn_area {
+  position: absolute;
+  top: 520px;
+}
+
+.btn0 {
+  position: absolute;
+  top: 50px;
+  left: 920px;
+  width:100px;
+  height:30px;
+  font-size:24px;
+  font-weight:bold;
+  text-decoration:none;
+  display:block;
+  text-align:center;
+  padding:8px 0 10px;
+  color:#333;
+  background-color: #00FF00
+  /*border:1px solid #333;*/
+}
+
+.btn1 {
+  position: absolute;
+  top: 120px;
+  left: 920px;
+  width:100px;
+  height:30px;
+  font-size:24px;
+  font-weight:bold;
+  text-decoration:none;
+  display:block;
+  text-align:center;
+  padding:8px 0 10px;
+  color:#333;
+  background-color: #00FF00
+  /*border:1px solid #333;*/
+}
+
 
