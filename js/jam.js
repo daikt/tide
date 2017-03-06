@@ -1,8 +1,22 @@
 $(function() {
 
+  // 8 user colors.
+  var user_colors = [
+    'rgba(255,   0,   0, 1.0)',  // red
+    'rgba(  0, 255,   0, 1.0)',  // green
+    'rgba(  0,   0, 255, 1.0)',  // blue
+    'rgba(  0, 255, 255, 1.0)',  // cyan
+    'rgba(255, 165,   0, 1.0)',  // orange
+    'rgba(  0, 128, 128, 1.0)',  // teal
+    'rgba(255,   0, 255, 1.0)',  // magenda
+    'rgba(128,   0, 128, 1.0)'   // purple
+  ];
+
+  var MAX_USER = 8;
+  var user_num = 0;
+
   var extent = [0, 0, 900, 500];
   var projection = new ol.proj.Projection({
-    //code: 'xkcd-image',
     units: 'pixels',
     extent: extent
   });
@@ -51,10 +65,11 @@ $(function() {
   });
 
   // Start
+  var timer=null;
   $('#start_btn').click(function(){
       // レイヤを切換えて表示する
       var j=1;
-      var timer = setInterval(function(){
+      timer = setInterval(function(){
         map.addLayer(layers[j]);
         $('#fn_area label').text(imgs[j]);
         // 画面がチラつくので５個前から削除する
@@ -67,25 +82,67 @@ $(function() {
           clearInterval(timer);
         }
       }, 100);
-
   });
 
   // Reset
   $('#reset_btn').click(function(){
-    console.log("reset click!");
-    location.reload();
+    console.log("reset click.");
+    //location.reload();
+    if (timer != null) {
+      clearInterval(timer);
+    }
+    map.getLayers().clear();
+    map.addLayer(layers[0]);
+    user_num = 0;
   });
 
   // confirm user points.
   map.on('click', function(evt) {
+
+    if (user_num >= MAX_USER) {
+      console.log("max user over.");
+      return false;
+    }
+
     var OFFSET_i = 1150;
     var OFFSET_j = 850;
+    var tmp = [
+      Math.floor(evt.coordinate[0] + OFFSET_i),
+      Math.floor(evt.coordinate[1] + OFFSET_j)
+    ];
+    console.log("tmp = " + tmp);
+    var file_name = "/" + tmp[1] + "/" + tmp[0] + "_" + tmp[1] + ".dat";
+    console.log("file_name = " + file_name);
+
     var coordinate = evt.coordinate;
-    console.log("----------");
     console.log(coordinate);
-    coordinate[0] += OFFSET_i;
-    coordinate[1] += OFFSET_j;
-    console.log(coordinate);
+
+    // Create a circle feature
+    var circle = new ol.geom.Circle(coordinate, 1); // radius is 1px.
+    var circleFeature = new ol.Feature(circle);
+
+    // set features to marker source.
+    var markerSource = new ol.source.Vector({
+      features: [circleFeature]
+    });
+
+    // set marker style.
+    user_color = user_colors[user_num++];
+    var markerStyle = new ol.style.Style({
+      fill: new ol.style.Fill({
+        color: user_color
+      })
+    });
+
+    // set source to layer.
+    var markerLayer = new ol.layer.Vector({
+      source: markerSource,
+      style: markerStyle
+    });
+
+    map.addLayer(markerLayer);
+
+
   });
 
 });
