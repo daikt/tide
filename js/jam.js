@@ -14,6 +14,8 @@ $(function() {
 
   var MAX_USER = 8;
   var user_num = 0;
+  var user_data = [];
+  var CALCULATED_DATA_PATH = "/tide/matsuoka/data/track";
 
   var extent = [0, 0, 900, 500];
   var projection = new ol.proj.Projection({
@@ -64,9 +66,22 @@ $(function() {
     }
   });
 
+  // ---------------------------------
   // Start
+  // ---------------------------------
   var timer=null;
   $('#start_btn').click(function(){
+
+
+    var layers = map.getLayers();
+    for (var i=0; i<layers.length; i++) {
+      var feature = layers[i].vector.source.getFeatureById(i);
+      var aaa=0;
+    }
+
+
+
+/*
       // レイヤを切換えて表示する
       var j=1;
       timer = setInterval(function(){
@@ -82,9 +97,13 @@ $(function() {
           clearInterval(timer);
         }
       }, 100);
+*/
+
   });
 
+  // ---------------------------------
   // Reset
+  // ---------------------------------
   $('#reset_btn').click(function(){
     console.log("reset click.");
     //location.reload();
@@ -96,7 +115,9 @@ $(function() {
     user_num = 0;
   });
 
+  // ---------------------------------
   // confirm user points.
+  // ---------------------------------
   map.on('click', function(evt) {
 
     if (user_num >= MAX_USER) {
@@ -111,15 +132,30 @@ $(function() {
       Math.floor(evt.coordinate[1] + OFFSET_j)
     ];
     console.log("tmp = " + tmp);
-    var file_name = "/" + tmp[1] + "/" + tmp[0] + "_" + tmp[1] + ".dat";
-    console.log("file_name = " + file_name);
+    var fpath = CALCULATED_DATA_PATH + "/" + tmp[1] + "/" + tmp[0] + "_" + tmp[1] + ".dat";
+    console.log("fpath = " + fpath);
 
+    // read the user selected point data.
+    $.ajax({
+      url: fpath,
+      cache: false,
+      error: function(msg) {
+        console.log(msg);
+      },
+      success: function(dat) {
+        //console.log(dat);
+        var tmp = new Object();
+        tmp.value = dat.split('\n');;
+        user_data.push(tmp);
+      }
+    });
+
+    // create a circle feature.
     var coordinate = evt.coordinate;
     console.log(coordinate);
-
-    // Create a circle feature
     var circle = new ol.geom.Circle(coordinate, 1); // radius is 1px.
     var circleFeature = new ol.Feature(circle);
+    circleFeature.setId(user_num);
 
     // set features to marker source.
     var markerSource = new ol.source.Vector({
