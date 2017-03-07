@@ -2,14 +2,14 @@ $(function() {
 
   // 8 user colors.
   var user_colors = [
-    'rgba(255,   0,   0, 1.0)',  // red
-    'rgba(  0, 255,   0, 1.0)',  // green
-    'rgba(  0,   0, 255, 1.0)',  // blue
-    'rgba(  0, 255, 255, 1.0)',  // cyan
-    'rgba(255, 165,   0, 1.0)',  // orange
-    'rgba(  0, 128, 128, 1.0)',  // teal
-    'rgba(255,   0, 255, 1.0)',  // magenda
-    'rgba(128,   0, 128, 1.0)'   // purple
+    'rgba(255,   0,   0, 1.0)',  // Red
+    'rgba(  0, 255,   0, 1.0)',  // Green
+    'rgba(  0, 255, 255, 1.0)',  // Cyan
+    'rgba(255, 165,   0, 1.0)',  // Orange
+    'rgba(  0, 128, 128, 1.0)',  // Teal
+    'rgba(255,   0, 255, 1.0)',  // Magenda
+    'rgba(176, 224, 230, 1.0)',  // PowderBlue
+    'rgba(178,  34,  34, 1.0)'   // FireBrick
   ];
 
   var MAX_USER = 8;
@@ -127,20 +127,43 @@ $(function() {
         var dot = new ol.geom.Circle(tmp_pnt, 1);
         var ft = new ol.Feature(dot);
         srcs[i].addFeature(ft);
+
+        var dist = getDistance(user_data[i].value[j]);
+        $('#lbdist' + i).html(Math.floor(dist));
       }
 
-      /*
-      // move dots only
-      for (var i=0; i<geoms.length; i++) {
-        var tmp_pnt = getCoor(user_data[i].value[j]);
-        geoms[i].setCenter(tmp_pnt);
-        console.log(tmp_pnt + " j=" + j);
-      }
-      */
+      //// move dots only
+      //for (var i=0; i<geoms.length; i++) {
+      //  var tmp_pnt = getCoor(user_data[i].value[j]);
+      //  geoms[i].setCenter(tmp_pnt);
+      //  console.log(tmp_pnt + " j=" + j);
+      //}
 
       j++;
 
     }, 10);
+
+    // take into username.
+    var user_names = [];
+    for (var i=0; i<user_num; i++) {
+      user_names.push($('#un' + i).val());
+    }
+
+    // create ranking area.
+    $('#ranking p').remove();
+    $('#ranking table').remove();
+    $('#ranking').append('<table></table>');
+    for (var i=0; i<user_num; i++) {
+      $('#ranking table').append(
+        $('<tr height="40"></tr>')
+          .append('<td width="50"><label id="lb' + i + '">' + user_names[i] + '</label></td>')
+          .append('<td><label id="lbsepa' + i + '"> : </label></td>')
+          .append('<td><label id="lbdist' + i + '">999</label></td>')
+      );
+      $('#lb' + i).css('color', user_colors[i]);
+      $('#lbsepa' + i).css('color', user_colors[i]);
+      $('#lbdist' + i).css('color', user_colors[i]);
+    }
 
   });
 
@@ -153,6 +176,14 @@ $(function() {
     var tmp_j = ((arr[1] - OFFSET_LONLAT_j) * 10);
     var ret = [Math.floor(tmp_i), Math.floor(tmp_j)];
     return ret;
+  }
+
+  // ---------------------------------
+  // get distance specified point.
+  // ---------------------------------
+  function getDistance(dat) {
+    var arr = dat.split('\t');
+    return arr[2];
   }
 
   // ---------------------------------
@@ -171,6 +202,9 @@ $(function() {
     map.addLayer(layers[0]);
     user_data = [];
     user_num = 0;
+
+    $('#ranking p').remove();
+    $('#ranking table').remove();
   });
 
   // ---------------------------------
@@ -236,6 +270,34 @@ $(function() {
     map.addLayer(markerLayer);
     user_num++;
 
+  });
+
+  // ---------------------------------
+  // Set
+  // ---------------------------------
+  $('#set_btn').click(function(){
+    $('#ranking p').remove();
+    $('#ranking table').remove();
+    for (var i=0; i<MAX_USER; i++) {
+      var user_no = (i + 1);
+      $('#ranking').append(
+        $('<p></p>').append('<label id="lb' + i + '"># ' + user_no + ' </label>')
+                    .append('<input id="un' + i + '" type="text" size="20">')
+      );
+      $('#lb' + i).css('color', user_colors[i]);
+    }
+  });
+
+  // ---------------------------------
+  // Stop
+  // ---------------------------------
+  $('#stop_btn').click(function(){
+    if (timer != null) {
+      clearInterval(timer);
+    }
+    if (timer_dot != null) {
+      clearInterval(timer_dot);
+    }
   });
 
 });
