@@ -16,6 +16,10 @@ $(function() {
   var user_num = 0;
   var user_data = [];
   var CALCULATED_DATA_PATH = "/tide/matsuoka/data/track";
+  var OFFSET_i = 1150.0;
+  var OFFSET_j = 850.0;
+  var OFFSET_LONLAT_i = 115.0;
+  var OFFSET_LONLAT_j = 10.1;
 
   var extent = [0, 0, 900, 500];
   var projection = new ol.proj.Projection({
@@ -56,7 +60,8 @@ $(function() {
             url: imgfile,
             projection: map.getView().getProjection(),
             imageExtent: extent
-          })
+          }),
+          name: 'image_' + i
         });
         layers.push(tmp_layer);
         imgs.push(imgfile);
@@ -70,36 +75,85 @@ $(function() {
   // Start
   // ---------------------------------
   var timer=null;
+  var timer_dot=null;
   $('#start_btn').click(function(){
 
+    console.log("start click.");
+
+    /*
+    // --- ベースマップを切り替える ---
+    // レイヤを切換えて表示する
+    var j=1;
+    timer = setInterval(function(){
+      map.addLayer(layers[j]);
+      $('#fn_area label').text(imgs[j]);
+      // 画面がチラつくので５個前から削除する
+      if (j > 5) {
+        map.removeLayer(layers[j-6]);
+      }
+      j++;
+      //j=layers.length;
+      if (j >= layers.length){
+        clearInterval(timer);
+      }
+    }, 100);
+    */
 
     var layers = map.getLayers();
-    for (var i=0; i<layers.length; i++) {
-      var feature = layers[i].vector.source.getFeatureById(i);
-      var aaa=0;
+    var length = layers.getLength();
+    //var geoms = [];
+    var srcs = [];
+    for (var i = 0; i < length; i++) {
+      var lt = layers.item(i).get('name').substr(0,3);
+      if (lt === "dot") {
+        var tmpLayer = layers.item(i);
+        var src = tmpLayer.get('source');
+        //var fts = src.getFeatures();
+        //var fts_len = fts.length;
+        //var geom = fts[0].getGeometry();
+        //geoms.push(geom);
+        srcs.push(src);
+      }
     }
 
+    // --- move each users's dots. ---
+    j=1; // timer cycle counter
+    timer_dot = setInterval(function(){
 
+      // add dots
+      for (var i=0; i<srcs.length; i++) {
+        var tmp_pnt = getCoor(user_data[i].value[j]);
+        //console.log(tmp_pnt + " j=" + j);
+        var dot = new ol.geom.Circle(tmp_pnt, 1);
+        var ft = new ol.Feature(dot);
+        srcs[i].addFeature(ft);
+      }
 
-/*
-      // レイヤを切換えて表示する
-      var j=1;
-      timer = setInterval(function(){
-        map.addLayer(layers[j]);
-        $('#fn_area label').text(imgs[j]);
-        // 画面がチラつくので５個前から削除する
-        if (j > 5) {
-          map.removeLayer(layers[j-6]);
-        }
-        j++;
-        //j=layers.length;
-        if (j >= layers.length){
-          clearInterval(timer);
-        }
-      }, 100);
-*/
+      /*
+      // move dots only
+      for (var i=0; i<geoms.length; i++) {
+        var tmp_pnt = getCoor(user_data[i].value[j]);
+        geoms[i].setCenter(tmp_pnt);
+        console.log(tmp_pnt + " j=" + j);
+      }
+      */
+
+      j++;
+
+    }, 10);
 
   });
+
+  // ---------------------------------
+  // get display point.
+  // ---------------------------------
+  function getCoor(dat) {
+    var arr = dat.split('\t');
+    var tmp_i = ((arr[0] - OFFSET_LONLAT_i) * 10);
+    var tmp_j = ((arr[1] - OFFSET_LONLAT_j) * 10);
+    var ret = [Math.floor(tmp_i), Math.floor(tmp_j)];
+    return ret;
+  }
 
   // ---------------------------------
   // Reset
@@ -110,8 +164,12 @@ $(function() {
     if (timer != null) {
       clearInterval(timer);
     }
+    if (timer_dot != null) {
+      clearInterval(timer_dot);
+    }
     map.getLayers().clear();
     map.addLayer(layers[0]);
+    user_data = [];
     user_num = 0;
   });
 
@@ -125,8 +183,6 @@ $(function() {
       return false;
     }
 
-    var OFFSET_i = 1150;
-    var OFFSET_j = 850;
     var tmp = [
       Math.floor(evt.coordinate[0] + OFFSET_i),
       Math.floor(evt.coordinate[1] + OFFSET_j)
@@ -163,7 +219,7 @@ $(function() {
     });
 
     // set marker style.
-    user_color = user_colors[user_num++];
+    user_color = user_colors[user_num];
     var markerStyle = new ol.style.Style({
       fill: new ol.style.Fill({
         color: user_color
@@ -173,11 +229,12 @@ $(function() {
     // set source to layer.
     var markerLayer = new ol.layer.Vector({
       source: markerSource,
-      style: markerStyle
+      style: markerStyle,
+      name: 'dot_' + user_num
     });
 
     map.addLayer(markerLayer);
-
+    user_num++;
 
   });
 

@@ -1,4 +1,9 @@
 
+html {
+  /*background-color: #000033;*/
+  background-color: #333333;
+}
+
 .mapdiv {
   position: absolute;
   width: 900px;
@@ -29,8 +34,8 @@
 
 .btn1 {
   position: absolute;
-  top: 120px;
-  left: 920px;
+  top: 50px;
+  left: 1040px;
   width:100px;
   height:30px;
   font-size:24px;
