@@ -150,7 +150,15 @@ $(function() {
     timer_dot = setInterval(function(){
 
       // add dots
+      var dist_arr = [];
+      var dist_arr_sort = [];
       for (var i=0; i<srcs.length; i++) {
+
+        if (j >= user_data[i].value.length - 1) {
+          // data file ended.
+          continue;
+        }
+
         var tmp_pnt = getCoor(user_data[i].value[j]);
         //console.log(tmp_pnt + " j=" + j);
         var dot = new ol.geom.Circle(tmp_pnt, 1);
@@ -158,7 +166,11 @@ $(function() {
         srcs[i].addFeature(ft);
 
         var dist = getDistance(user_data[i].value[j]);
-        $('#lbdist' + i).html(Math.floor(dist) + " km");
+        dist_arr.push(dist);
+        dist_arr_sort.push(dist);
+
+        //var dist = getDistance(user_data[i].value[j]);
+        //$('#lbdist' + i).html(Math.floor(dist) + " km");
       }
 
       //// move dots only
@@ -167,6 +179,23 @@ $(function() {
       //  geoms[i].setCenter(tmp_pnt);
       //  console.log(tmp_pnt + " j=" + j);
       //}
+
+      dist_arr_sort.sort(function(a, b) {
+        return (parseInt(a) > parseInt(b)) ? 1 : -1;
+      });
+      for (var k=0; k<dist_arr_sort.length; k++) {
+        $('#lbdist' + k).html(Math.floor(dist_arr_sort[k]) + " km");
+
+        for (var l=0; l<dist_arr.length; l++) {
+          if (dist_arr_sort[k] === dist_arr[l]) {
+            $('#lb' + k).css('color', user_colors[l]);
+            $('#lb' + k).html(user_names[l]);
+            $('#lbsepa' + k).css('color', user_colors[l]);
+            $('#lbdist' + k).css('color', user_colors[l]);
+          }
+        }
+
+      }
 
       j++;
 
@@ -183,15 +212,28 @@ $(function() {
     $('#ranking table').remove();
     $('#ranking').append('<table></table>');
     for (var i=0; i<user_num; i++) {
+
+      var suffix = "th";
+      if (i === 0) {
+        suffix = "st";
+      } else if (i === 1) {
+        suffix = "nd";
+      } else if (i === 2) {
+        suffix = "rd";
+      }
+      var rank = (i + 1);
+      rank = rank + suffix + ":";
+
       $('#ranking table').append(
         $('<tr height="40"></tr>')
+          .append('<td style="color: white; font-weight=bold; font-size=20px;">' + rank + '</td>')
           .append('<td width="90"><label id="lb' + i + '">' + user_names[i] + '</label></td>')
           .append('<td><label id="lbsepa' + i + '"> : </label></td>')
           .append('<td><label id="lbdist' + i + '">999</label></td>')
       );
-      $('#lb' + i).css('color', user_colors[i]).css('font-weight', 'bold').css('font-size', '18px');
-      $('#lbsepa' + i).css('color', user_colors[i]).css('font-weight', 'bold').css('font-size', '18px');
-      $('#lbdist' + i).css('color', user_colors[i]).css('font-weight', 'bold').css('font-size', '18px');
+      $('#lb' + i).css('color', user_colors[i]).css('font-weight', 'bold').css('font-size', '20px');
+      $('#lbsepa' + i).css('color', user_colors[i]).css('font-weight', 'bold').css('font-size', '20px');
+      $('#lbdist' + i).css('color', user_colors[i]).css('font-weight', 'bold').css('font-size', '20px');
     }
 
   });
@@ -325,7 +367,7 @@ $(function() {
         $('<p></p>').append('<label id="lb' + i + '"># ' + user_no + ' </label>')
                     .append('<input id="un' + i + '" type="text" size="20">')
       );
-      $('#lb' + i).css('color', user_colors[i]);
+      $('#lb' + i).css('color', user_colors[i]).css('font-weight', 'bold');
     }
     return false;
   });
