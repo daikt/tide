@@ -13,13 +13,14 @@ $(function() {
   ];
 
   var MAX_USER = 8;
-  var user_num = 0;
-  var user_data = [];
   var CALCULATED_DATA_PATH = "/tide/matsuoka/data/track";
   var OFFSET_i = 1150.0;
   var OFFSET_j = 850.0;
   var OFFSET_LONLAT_i = 115.0;
   var OFFSET_LONLAT_j = 10.1;
+  var GOAL_POINT = [590, 244];
+  var user_num = 0;
+  var user_data = [];
 
   var extent = [0, 0, 900, 500];
   var projection = new ol.proj.Projection({
@@ -83,7 +84,7 @@ $(function() {
         }))
       });
       var icoFeature = new ol.Feature({
-        geometry: new ol.geom.Point([650, 250]),  // goal point
+        geometry: new ol.geom.Point(GOAL_POINT),  // goal point
         name: 'JAMSTEC Island',
       });
       icoFeature.setStyle(icoStyle);
@@ -157,7 +158,7 @@ $(function() {
         srcs[i].addFeature(ft);
 
         var dist = getDistance(user_data[i].value[j]);
-        $('#lbdist' + i).html(Math.floor(dist));
+        $('#lbdist' + i).html(Math.floor(dist) + " km");
       }
 
       //// move dots only
@@ -184,13 +185,13 @@ $(function() {
     for (var i=0; i<user_num; i++) {
       $('#ranking table').append(
         $('<tr height="40"></tr>')
-          .append('<td width="100"><label id="lb' + i + '">' + user_names[i] + '</label></td>')
+          .append('<td width="90"><label id="lb' + i + '">' + user_names[i] + '</label></td>')
           .append('<td><label id="lbsepa' + i + '"> : </label></td>')
           .append('<td><label id="lbdist' + i + '">999</label></td>')
       );
-      $('#lb' + i).css('color', user_colors[i]).css('font-weight', 'bold').css('font-size', '20px');
-      $('#lbsepa' + i).css('color', user_colors[i]).css('font-weight', 'bold').css('font-size', '20px');
-      $('#lbdist' + i).css('color', user_colors[i]).css('font-weight', 'bold').css('font-size', '20px');
+      $('#lb' + i).css('color', user_colors[i]).css('font-weight', 'bold').css('font-size', '18px');
+      $('#lbsepa' + i).css('color', user_colors[i]).css('font-weight', 'bold').css('font-size', '18px');
+      $('#lbdist' + i).css('color', user_colors[i]).css('font-weight', 'bold').css('font-size', '18px');
     }
 
   });
@@ -210,8 +211,19 @@ $(function() {
   // get distance specified point.
   // ---------------------------------
   function getDistance(dat) {
+
     var arr = dat.split('\t');
-    return arr[2];
+    var lon = parseFloat(arr[0]);
+    var lat = parseFloat(arr[1]);
+    var lonj = parseFloat((GOAL_POINT[0] * 0.1) + OFFSET_LONLAT_i);
+    var latj = parseFloat((GOAL_POINT[1] * 0.1) + OFFSET_LONLAT_j);
+
+    var lon_km = Math.sqrt((lon-lonj)*(lon-lonj))/360.0*400075.0
+                   * Math.cos((lat+latj)*0.5*3.141593/180.0);
+    var lat_km = Math.sqrt((lat-latj)*(lat-latj))/180.0*20037.5;
+    var ret = Math.sqrt(lon_km*lon_km+lat_km*lat_km);
+
+    return ret;
   }
 
   // ---------------------------------
@@ -315,6 +327,7 @@ $(function() {
       );
       $('#lb' + i).css('color', user_colors[i]);
     }
+    return false;
   });
 
   // ---------------------------------

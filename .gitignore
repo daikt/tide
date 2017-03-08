@@ -2,7 +2,7 @@
 *~
 *.swp
 matsuoka
-getFileList.php
+getImageList.php
 getFileList.php.*
 lib
 *_bk*.js
