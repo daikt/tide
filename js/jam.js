@@ -109,13 +109,13 @@ $(function() {
 
     console.log("start click.");
 
-    /*
     // --- ベースマップを切り替える ---
     // レイヤを切換えて表示する
     var j=1;
     timer = setInterval(function(){
       map.addLayer(layers[j]);
-      $('#fn_area label').text(imgs[j]);
+      var ta = imgs[j].substr(34,4);
+      $('#time_area').html('20xx/' + ta.substr(0,2) + '/' + ta.substr(2,2));
       // 画面がチラつくので５個前から削除する
       if (j > 5) {
         map.removeLayer(layers[j-6]);
@@ -126,8 +126,8 @@ $(function() {
         clearInterval(timer);
       }
     }, 100);
-    */
 
+/*
     var layers = map.getLayers();
     var length = layers.getLength();
     //var geoms = [];
@@ -196,10 +196,9 @@ $(function() {
         }
 
       }
-
       j++;
-
     }, 10);
+*/
 
     // take into username.
     var user_names = [];
@@ -208,9 +207,10 @@ $(function() {
     }
 
     // create ranking area.
-    $('#ranking p').remove();
     $('#ranking table').remove();
+    $('#ranking p').remove();
     $('#ranking').append('<table></table>');
+    $('#ranking table').append('<tr><td><label id="time_area" style="color: white; font-weight=bold; font-size=20px;"></label></td></tr>');
     for (var i=0; i<user_num; i++) {
 
       var suffix = "th";
@@ -351,16 +351,16 @@ $(function() {
     user_data = [];
     user_num = 0;
 
-    $('#ranking p').remove();
     $('#ranking table').remove();
+    $('#ranking p').remove();
   });
 
   // ---------------------------------
   // Set
   // ---------------------------------
   $('#set_btn').click(function(){
-    $('#ranking p').remove();
     $('#ranking table').remove();
+    $('#ranking p').remove();
     for (var i=0; i<MAX_USER; i++) {
       var user_no = (i + 1);
       $('#ranking').append(
