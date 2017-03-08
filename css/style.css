@@ -25,10 +25,8 @@ html {
   border: 3px solid #ccc;
 }
 
-.btn0 {
+.btn {
   position: absolute;
-  top: 20px;
-  left: 920px;
   width:100px;
   height:30px;
   font-size:24px;
@@ -38,54 +36,29 @@ html {
   text-align:center;
   padding:8px 0 10px;
   color:#333;
+}
+
+.btn0 {
+  top: 20px;
+  left: 920px;
   background-color: #87CEFA;
 }
 
 .btn1 {
-  position: absolute;
   top: 20px;
   left: 1040px;
-  width:100px;
-  height:30px;
-  font-size:24px;
-  font-weight:bold;
-  text-decoration:none;
-  display:block;
-  text-align:center;
-  padding:8px 0 10px;
-  color:#333;
   background-color: #F08080;
 }
 
 .btn2 {
-  position: absolute;
   top: 85px;
   left: 920px;
-  width:100px;
-  height:30px;
-  font-size:24px;
-  font-weight:bold;
-  text-decoration:none;
-  display:block;
-  text-align:center;
-  padding:8px 0 10px;
-  color:#333;
   background-color: #5BC0DE;
 }
 
 .btn3 {
-  position: absolute;
   top: 85px;
   left: 1040px;
-  width:100px;
-  height:30px;
-  font-size:24px;
-  font-weight:bold;
-  text-decoration:none;
-  display:block;
-  text-align:center;
-  padding:8px 0 10px;
-  color:#333;
   background-color: #F0AD4E;
 }
 
