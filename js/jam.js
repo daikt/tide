@@ -42,6 +42,7 @@ $(function() {
   // サーバから画像ファイル名リストを取得する
   var layers = [];
   var imgs = [];
+  var icoLayer;
   $.ajax({
     url: "/tide/php/getFileList.php",
     cache: false,
@@ -67,6 +68,30 @@ $(function() {
         imgs.push(imgfile);
       }
       map.addLayer(layers[0]);
+
+      // set goal layer.
+      var icoStyle = new ol.style.Style({
+        image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+          anchor: [0.5, 46],
+          anchorXUnits: 'fraction',
+          anchorYUnits: 'pixels',
+          opacity: 0.75,
+          src: '/tide/img/goal_64.png'
+        }))
+      });
+      var icoFeature = new ol.Feature({
+        geometry: new ol.geom.Point([650, 250]),  // goal point
+        name: 'JAMSTEC Island',
+      });
+      icoFeature.setStyle(icoStyle);
+      var icoSource = new ol.source.Vector({
+        features: [icoFeature]
+      });
+      icoLayer = new ol.layer.Vector({
+        source: icoSource,
+        name: 'goal'
+      });
+      map.addLayer(icoLayer);
 
     }
   });
@@ -156,7 +181,7 @@ $(function() {
     for (var i=0; i<user_num; i++) {
       $('#ranking table').append(
         $('<tr height="40"></tr>')
-          .append('<td width="50"><label id="lb' + i + '">' + user_names[i] + '</label></td>')
+          .append('<td width="100"><label id="lb' + i + '">' + user_names[i] + '</label></td>')
           .append('<td><label id="lbsepa' + i + '"> : </label></td>')
           .append('<td><label id="lbdist' + i + '">999</label></td>')
       );
@@ -185,27 +210,6 @@ $(function() {
     var arr = dat.split('\t');
     return arr[2];
   }
-
-  // ---------------------------------
-  // Reset
-  // ---------------------------------
-  $('#reset_btn').click(function(){
-    console.log("reset click.");
-    //location.reload();
-    if (timer != null) {
-      clearInterval(timer);
-    }
-    if (timer_dot != null) {
-      clearInterval(timer_dot);
-    }
-    map.getLayers().clear();
-    map.addLayer(layers[0]);
-    user_data = [];
-    user_num = 0;
-
-    $('#ranking p').remove();
-    $('#ranking table').remove();
-  });
 
   // ---------------------------------
   // confirm user points.
@@ -270,6 +274,28 @@ $(function() {
     map.addLayer(markerLayer);
     user_num++;
 
+  });
+
+  // ---------------------------------
+  // Reset
+  // ---------------------------------
+  $('#reset_btn').click(function(){
+    console.log("reset click.");
+    //location.reload();
+    if (timer != null) {
+      clearInterval(timer);
+    }
+    if (timer_dot != null) {
+      clearInterval(timer_dot);
+    }
+    map.getLayers().clear();
+    map.addLayer(layers[0]);
+    map.addLayer(icoLayer);
+    user_data = [];
+    user_num = 0;
+
+    $('#ranking p').remove();
+    $('#ranking table').remove();
   });
 
   // ---------------------------------
