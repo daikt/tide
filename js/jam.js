@@ -39,6 +39,9 @@ $(function() {
     })
   });
 
+  // delete unuse DOM.
+  $('.ol-overlaycontainer-stopevent').remove();
+
   // サーバから画像ファイル名リストを取得する
   var layers = [];
   var imgs = [];
@@ -185,9 +188,9 @@ $(function() {
           .append('<td><label id="lbsepa' + i + '"> : </label></td>')
           .append('<td><label id="lbdist' + i + '">999</label></td>')
       );
-      $('#lb' + i).css('color', user_colors[i]);
-      $('#lbsepa' + i).css('color', user_colors[i]);
-      $('#lbdist' + i).css('color', user_colors[i]);
+      $('#lb' + i).css('color', user_colors[i]).css('font-weight', 'bold').css('font-size', '20px');
+      $('#lbsepa' + i).css('color', user_colors[i]).css('font-weight', 'bold').css('font-size', '20px');
+      $('#lbdist' + i).css('color', user_colors[i]).css('font-weight', 'bold').css('font-size', '20px');
     }
 
   });

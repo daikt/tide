@@ -6,4 +6,6 @@ getFileList.php
 getFileList.php.*
 lib
 *_bk*.js
+*_bk*.css
+*_bk*.html
 
