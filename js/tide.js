@@ -12,15 +12,26 @@ $(function() {
     'rgba(178,  34,  34, 1.0)'   // FireBrick
   ];
 
+  // constants
   var MAX_USER = 8;
   var CALCULATED_DATA_PATH = "/tide/data/track";
+  var CGI_PATH = "/tide/php/getFileList.php";
+  var GOAL_ICON = "/tide/img/goal_64.png";
+  var GOAL_NAME = "JAMSTEC Island";
+  var GOAL_POINT = [590, 244];
   var OFFSET_i = 1150.0;
   var OFFSET_j = 850.0;
   var OFFSET_LONLAT_i = 115.0;
   var OFFSET_LONLAT_j = 10.1;
-  var GOAL_POINT = [590, 244];
+
+  // user variable
   var user_num = 0;
   var user_data = [];
+
+  // layers
+  var imglayer = null;
+  var dotlayers = [];
+  var icoLayer = null;
 
   var extent = [0, 0, 900, 500];
   var projection = new ol.proj.Projection({
@@ -44,11 +55,10 @@ $(function() {
   $('.ol-overlaycontainer-stopevent').remove();
 
   // サーバから画像ファイル名リストを取得する
-  var layers = [];
-  var imgs = [];
-  var icoLayer;
+  var imgfiles = [];
+  var ist_arr = [];
   $.ajax({
-    url: "/tide/php/getFileList.php",
+    url: CGI_PATH,
     cache: false,
     error: function(msg) {
       console.log(msg);
@@ -59,19 +69,21 @@ $(function() {
       var data = $.parseJSON(json);
       for (var i=0; data[i]; i++) {
         var imgfile = "/tide" + data[i].image.substr(2);
-        //console.log(imgfile);
-        var tmp_layer = new ol.layer.Image({
-          source: new ol.source.ImageStatic({
-            url: imgfile,
-            projection: map.getView().getProjection(),
-            imageExtent: extent
-          }),
-          name: 'image_' + i
-        });
-        layers.push(tmp_layer);
-        imgs.push(imgfile);
+        var ist = new ol.source.ImageStatic({
+                   url: imgfile,
+                   projection: map.getView().getProjection(),
+                   imageExtent: extent
+                 });
+        imgfiles.push(imgfile);
+        ist_arr.push(ist);
       }
-      map.addLayer(layers[0]);
+
+      // add image layer.
+      imglayer = new ol.layer.Image({
+        source: ist_arr[0],
+        name: 'img'
+      });
+      map.addLayer(imglayer);
 
       // set goal layer.
       var icoStyle = new ol.style.Style({
@@ -80,7 +92,7 @@ $(function() {
           anchorXUnits: 'fraction',
           anchorYUnits: 'pixels',
           opacity: 0.75,
-          src: '/tide/img/goal_64.png'
+          src: GOAL_ICON
         })),
         text: new ol.style.Text({
           fill: new ol.style.Fill({color: "#0000ff"}),
@@ -89,7 +101,7 @@ $(function() {
           textAlign: "center",
           textBaseline: "top",
           offsetY: 0,
-          text: "JAMSTEC Island",
+          text: GOAL_NAME,
           font: "Courier New, monospace"
         })
       });
@@ -115,45 +127,19 @@ $(function() {
   var timer=null;
   var timer_dot=null;
   $('#start_btn').click(function(){
-
     console.log("start click.");
 
-/*
-    // --- ベースマップを切り替える ---
-    // レイヤを切換えて表示する
-    var j=1;
+    // --- change base map. ---
+    var m=1;
     timer = setInterval(function(){
-      map.addLayer(layers[j]);
-      var ta = imgs[j].substr(30,4);
+      imglayer.setSource(ist_arr[m]); // change image
+      var ta = imgfiles[m].substr(30,4);
       $('#time_area').html('20xx/' + ta.substr(0,2) + '/' + ta.substr(2,2));
-      // 画面がチラつくので５個前から削除する
-      if (j > 5) {
-        map.removeLayer(layers[j-6]);
+      m++;
+      if (m >= imgfiles.length){
+        stopTimer();
       }
-      j++;
-      //j=layers.length;
-      if (j >= layers.length){
-        clearInterval(timer);
-      }
-    }, 100);
-*/
-
-    var layers = map.getLayers();
-    var length = layers.getLength();
-    //var geoms = [];
-    var srcs = [];
-    for (var i = 0; i < length; i++) {
-      var lt = layers.item(i).get('name').substr(0,3);
-      if (lt === "dot") {
-        var tmpLayer = layers.item(i);
-        var src = tmpLayer.get('source');
-        //var fts = src.getFeatures();
-        //var fts_len = fts.length;
-        //var geom = fts[0].getGeometry();
-        //geoms.push(geom);
-        srcs.push(src);
-      }
-    }
+    }, 240);
 
     // --- move each users's dots. ---
     j=1; // timer cycle counter
@@ -162,30 +148,24 @@ $(function() {
       // add dots
       var dist_arr = [];
       var dist_arr_sort = [];
-      for (var i=0; i<srcs.length; i++) {
+      for (var i=0; i<dotlayers.length; i++) {
 
         if (j >= user_data[i].value.length - 1) {
           // data file ended.
           continue;
         }
 
-        var tmp_pnt = getCoor(user_data[i].value[j]);
-        var dot = new ol.geom.Circle(tmp_pnt, 1);
+        var coor = getCoor(user_data[i].value[j]);
+        var dot = new ol.geom.Circle(coor, 1);
         var ft = new ol.Feature(dot);
-        srcs[i].addFeature(ft);
+        dotlayers[i].get('source').addFeature(ft);
 
         var dist = getDistance(user_data[i].value[j]);
         dist_arr.push(dist);
         dist_arr_sort.push(dist);
       }
 
-      //// move dots only
-      //for (var i=0; i<geoms.length; i++) {
-      //  var tmp_pnt = getCoor(user_data[i].value[j]);
-      //  geoms[i].setCenter(tmp_pnt);
-      //  console.log(tmp_pnt + " j=" + j);
-      //}
-
+      // sort ranking
       dist_arr_sort.sort(function(a, b) {
         return (parseInt(a) > parseInt(b)) ? 1 : -1;
       });
@@ -202,6 +182,7 @@ $(function() {
         }
 
       }
+
       j++;
     }, 10);
 
@@ -304,7 +285,7 @@ $(function() {
       },
       success: function(dat) {
         var tmp = new Object();
-        tmp.value = dat.split('\n');;
+        tmp.value = dat.split('\n');
         user_data.push(tmp);
 
         // create a circle feature.
@@ -320,10 +301,9 @@ $(function() {
         });
 
         // set marker style.
-        user_color = user_colors[user_num];
         var markerStyle = new ol.style.Style({
           fill: new ol.style.Fill({
-            color: user_color
+            color: user_colors[user_num]
           })
         });
 
@@ -334,6 +314,7 @@ $(function() {
           name: 'dot_' + user_num
         });
 
+        dotlayers.push(markerLayer);
         map.addLayer(markerLayer);
         user_num++;
       }
@@ -352,9 +333,10 @@ $(function() {
     if (timer_dot != null) {
       clearInterval(timer_dot);
     }
-    map.getLayers().clear();
-    map.addLayer(layers[0]);
-    map.addLayer(icoLayer);
+    imglayer.setSource(ist_arr[0]); 
+    for (var i=0; i<dotlayers.length; i++) {
+      dotlayers[i].get('source').clear();
+    }
     user_data = [];
     user_num = 0;
 
@@ -389,12 +371,19 @@ $(function() {
   // Stop
   // ---------------------------------
   $('#stop_btn').click(function(){
+    stopTimer();
+  });
+
+  // ---------------------------------
+  // stop timers.
+  // ---------------------------------
+  function stopTimer() {
     if (timer != null) {
       clearInterval(timer);
     }
     if (timer_dot != null) {
       clearInterval(timer_dot);
     }
-  });
+  }
 
 });
