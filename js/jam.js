@@ -81,11 +81,20 @@ $(function() {
           anchorYUnits: 'pixels',
           opacity: 0.75,
           src: '/tide/img/goal_64.png'
-        }))
+        })),
+        text: new ol.style.Text({
+          fill: new ol.style.Fill({color: "#0000ff"}),
+          stroke: new ol.style.Stroke({color: "#ffffff", width: 2}),
+          scale: 1.6,
+          textAlign: "center",
+          textBaseline: "top",
+          offsetY: 0,
+          text: "JAMSTEC Island",
+          font: "Courier New, monospace"
+        })
       });
       var icoFeature = new ol.Feature({
-        geometry: new ol.geom.Point(GOAL_POINT),  // goal point
-        name: 'JAMSTEC Island',
+        geometry: new ol.geom.Point(GOAL_POINT)  // goal point
       });
       icoFeature.setStyle(icoStyle);
       var icoSource = new ol.source.Vector({
@@ -208,6 +217,9 @@ $(function() {
     }
 
     // create ranking area.
+    $('#ctrl_panel').css('height', '437px');
+    $('#ranking').css('width', '270px');
+    $('#ranking').css('height', '360px');
     $('#ranking table').remove();
     $('#ranking p').remove();
     $('#ranking').append('<table></table>');
@@ -351,6 +363,9 @@ $(function() {
     user_data = [];
     user_num = 0;
 
+    $('#ranking').css('width', '226px');
+    $('#ranking').css('height', '0px');
+    $('#ctrl_panel').css('height', '0px');
     $('#ranking table').remove();
     $('#ranking p').remove();
   });
@@ -359,13 +374,16 @@ $(function() {
   // Set
   // ---------------------------------
   $('#set_btn').click(function(){
+    $('#ranking').css('width', '226px');
+    $('#ranking').css('height', '320px');
+    $('#ctrl_panel').css('height', '320px');
     $('#ranking table').remove();
     $('#ranking p').remove();
     for (var i=0; i<MAX_USER; i++) {
       var user_no = (i + 1);
       $('#ranking').append(
         $('<p></p>').append('<label id="lb' + i + '"># ' + user_no + ' </label>')
-                    .append('<input id="un' + i + '" type="text" size="20">')
+                    .append('<input id="un' + i + '" type="text" size="20" maxlength="10">')
       );
       $('#lb' + i).css('color', user_colors[i]).css('font-weight', 'bold');
     }
