@@ -5,7 +5,9 @@ matsuoka
 getImageList.php
 getFileList.php.*
 lib
+data
 *_bk*.js
 *_bk*.css
 *_bk*.html
+bmp2png.sh
 

@@ -1,6 +1,6 @@
 <?php
 
-  $dir = "../matsuoka/image/" ;
+  $dir = "../data/image/" ;
 
   // ディレクトリの存在を確認し、ハンドルを取得
   if( is_dir( $dir ) && $handle = opendir( $dir ) ) {

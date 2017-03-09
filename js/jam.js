@@ -6,14 +6,14 @@ $(function() {
     'rgba(  0, 255,   0, 1.0)',  // Green
     'rgba(  0, 255, 255, 1.0)',  // Cyan
     'rgba(255, 165,   0, 1.0)',  // Orange
-    'rgba(  0, 128, 128, 1.0)',  // Teal
     'rgba(255,   0, 255, 1.0)',  // Magenda
+    'rgba(  0, 128, 128, 1.0)',  // Teal
     'rgba(176, 224, 230, 1.0)',  // PowderBlue
     'rgba(178,  34,  34, 1.0)'   // FireBrick
   ];
 
   var MAX_USER = 8;
-  var CALCULATED_DATA_PATH = "/tide/matsuoka/data/track";
+  var CALCULATED_DATA_PATH = "/tide/data/track";
   var OFFSET_i = 1150.0;
   var OFFSET_j = 850.0;
   var OFFSET_LONLAT_i = 115.0;
@@ -124,7 +124,7 @@ $(function() {
     var j=1;
     timer = setInterval(function(){
       map.addLayer(layers[j]);
-      var ta = imgs[j].substr(34,4);
+      var ta = imgs[j].substr(30,4);
       $('#time_area').html('20xx/' + ta.substr(0,2) + '/' + ta.substr(2,2));
       // 画面がチラつくので５個前から削除する
       if (j > 5) {
@@ -137,7 +137,6 @@ $(function() {
       }
     }, 100);
 */
-
 
     var layers = map.getLayers();
     var length = layers.getLength();
@@ -171,7 +170,6 @@ $(function() {
         }
 
         var tmp_pnt = getCoor(user_data[i].value[j]);
-        //console.log(tmp_pnt + " j=" + j);
         var dot = new ol.geom.Circle(tmp_pnt, 1);
         var ft = new ol.Feature(dot);
         srcs[i].addFeature(ft);
@@ -179,9 +177,6 @@ $(function() {
         var dist = getDistance(user_data[i].value[j]);
         dist_arr.push(dist);
         dist_arr_sort.push(dist);
-
-        //var dist = getDistance(user_data[i].value[j]);
-        //$('#lbdist' + i).html(Math.floor(dist) + " km");
       }
 
       //// move dots only
