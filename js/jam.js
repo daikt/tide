@@ -109,6 +109,7 @@ $(function() {
 
     console.log("start click.");
 
+/*
     // --- ベースマップを切り替える ---
     // レイヤを切換えて表示する
     var j=1;
@@ -126,8 +127,9 @@ $(function() {
         clearInterval(timer);
       }
     }, 100);
+*/
 
-/*
+
     var layers = map.getLayers();
     var length = layers.getLength();
     //var geoms = [];
@@ -198,7 +200,6 @@ $(function() {
       }
       j++;
     }, 10);
-*/
 
     // take into username.
     var user_names = [];
@@ -291,46 +292,45 @@ $(function() {
       url: fpath,
       cache: false,
       error: function(msg) {
+        alert("範囲外です。選択し直してください");
         console.log(msg);
       },
       success: function(dat) {
-        //console.log(dat);
         var tmp = new Object();
         tmp.value = dat.split('\n');;
         user_data.push(tmp);
+
+        // create a circle feature.
+        var coordinate = evt.coordinate;
+        console.log(coordinate);
+        var circle = new ol.geom.Circle(coordinate, 1); // radius is 1px.
+        var circleFeature = new ol.Feature(circle);
+        circleFeature.setId(user_num);
+
+        // set features to marker source.
+        var markerSource = new ol.source.Vector({
+          features: [circleFeature]
+        });
+
+        // set marker style.
+        user_color = user_colors[user_num];
+        var markerStyle = new ol.style.Style({
+          fill: new ol.style.Fill({
+            color: user_color
+          })
+        });
+
+        // set source to layer.
+        var markerLayer = new ol.layer.Vector({
+          source: markerSource,
+          style: markerStyle,
+          name: 'dot_' + user_num
+        });
+
+        map.addLayer(markerLayer);
+        user_num++;
       }
     });
-
-    // create a circle feature.
-    var coordinate = evt.coordinate;
-    console.log(coordinate);
-    var circle = new ol.geom.Circle(coordinate, 1); // radius is 1px.
-    var circleFeature = new ol.Feature(circle);
-    circleFeature.setId(user_num);
-
-    // set features to marker source.
-    var markerSource = new ol.source.Vector({
-      features: [circleFeature]
-    });
-
-    // set marker style.
-    user_color = user_colors[user_num];
-    var markerStyle = new ol.style.Style({
-      fill: new ol.style.Fill({
-        color: user_color
-      })
-    });
-
-    // set source to layer.
-    var markerLayer = new ol.layer.Vector({
-      source: markerSource,
-      style: markerStyle,
-      name: 'dot_' + user_num
-    });
-
-    map.addLayer(markerLayer);
-    user_num++;
-
   });
 
   // ---------------------------------
