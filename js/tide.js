@@ -17,12 +17,15 @@ $(function() {
   var CALCULATED_DATA_PATH = "/tide/data/track";
   var CGI_PATH = "/tide/php/getFileList.php";
   var GOAL_ICON = "/tide/img/goal_64.png";
-  var GOAL_NAME = "JAMSTEC Island";
+  //var GOAL_NAME = "JAMSTEC Island";
+  var GOAL_NAME = "GOAL Island";
   var GOAL_POINT = [590, 244];
   var OFFSET_i = 1150.0;
   var OFFSET_j = 850.0;
   var OFFSET_LONLAT_i = 115.0;
   var OFFSET_LONLAT_j = 10.1;
+  var TIMER_IMG = 72; // msec
+  var TIMER_DOT = 3; // msec
 
   // user variable
   var user_num = 0;
@@ -139,7 +142,7 @@ $(function() {
       if (m >= imgfiles.length){
         stopTimer();
       }
-    }, 240);
+    }, TIMER_IMG);
 
     // --- move each users's dots. ---
     j=1; // timer cycle counter
@@ -184,7 +187,7 @@ $(function() {
       }
 
       j++;
-    }, 10);
+    }, TIMER_DOT);
 
     // take into username.
     var user_names = [];
