@@ -17,7 +17,6 @@ $(function() {
   var CALCULATED_DATA_PATH = "/tide/data/track";
   var CGI_PATH = "/tide/php/getFileList.php";
   var GOAL_ICON = "/tide/img/goal_64.png";
-  //var GOAL_NAME = "JAMSTEC Island";
   var GOAL_NAME = "GOAL Island";
   var GOAL_POINT = [590, 244];
   var OFFSET_i = 1150.0;
