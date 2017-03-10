@@ -136,7 +136,7 @@ $(function() {
     timer = setInterval(function(){
       imglayer.setSource(ist_arr[m]); // change image
       var ta = imgfiles[m].substr(30,4);
-      $('#time_area').html('20xx/' + ta.substr(0,2) + '/' + ta.substr(2,2));
+      $('#date').html('20xx/' + ta.substr(0,2) + '/' + ta.substr(2,2));
       m++;
       if (m >= imgfiles.length){
         stopTimer();
@@ -201,16 +201,17 @@ $(function() {
     $('#ranking table').remove();
     $('#ranking p').remove();
     $('#ranking').append('<table></table>');
-    $('#ranking table').append('<tr><td><label id="time_area" style="color: white; font-weight=bold; font-size=20px;"></label></td></tr>');
+    $('#date').css('display', '');
+    $('#ranking').css('clear', '');
     for (var i=0; i<user_num; i++) {
 
-      var suffix = "th";
+      var suffix = "th ";
       if (i === 0) {
-        suffix = "st";
+        suffix = "st ";
       } else if (i === 1) {
-        suffix = "nd";
+        suffix = "nd ";
       } else if (i === 2) {
-        suffix = "rd";
+        suffix = "rd ";
       }
       var rank = (i + 1);
       rank = rank + suffix + ":";
@@ -347,6 +348,8 @@ $(function() {
     $('#ctrl_panel').css('height', '0px');
     $('#ranking table').remove();
     $('#ranking p').remove();
+    $('#date').css('display', 'none');
+    $('#ranking').css('clear', 'left');
   });
 
   // ---------------------------------
@@ -358,6 +361,8 @@ $(function() {
     $('#ctrl_panel').css('height', '320px');
     $('#ranking table').remove();
     $('#ranking p').remove();
+    $('#date').css('display', 'none');
+    $('#ranking').css('clear', 'left');
     for (var i=0; i<MAX_USER; i++) {
       var user_no = (i + 1);
       $('#ranking').append(
