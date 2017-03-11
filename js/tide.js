@@ -28,6 +28,7 @@ $(function() {
 
   // user variable
   var user_num = 0;
+  var user_names = [];
   var user_data = [];
 
   // layers
@@ -184,12 +185,13 @@ $(function() {
         }
 
       }
+      dist_arr = [];
+      dist_arr_sort = [];
 
       j++;
     }, TIMER_DOT);
 
     // take into username.
-    var user_names = [];
     for (var i=0; i<user_num; i++) {
       user_names.push($('#un' + i).val());
     }
@@ -330,18 +332,15 @@ $(function() {
   $('#reset_btn').click(function(){
     console.log("reset click.");
     //location.reload();
-    if (timer != null) {
-      clearInterval(timer);
-    }
-    if (timer_dot != null) {
-      clearInterval(timer_dot);
-    }
-    imglayer.setSource(ist_arr[0]); 
+    stopTimer();
+    imglayer.setSource(ist_arr[0]); // reset to initial.png
     for (var i=0; i<dotlayers.length; i++) {
       dotlayers[i].get('source').clear();
     }
-    user_data = [];
     user_num = 0;
+    user_names = [];
+    user_data = [];
+    dotlayers = [];
 
     $('#ranking').css('width', '226px');
     $('#ranking').css('height', '0px');
