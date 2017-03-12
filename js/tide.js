@@ -57,8 +57,9 @@ $(function() {
     target: 'map',
     view: new ol.View({
       projection: projection,
-      center: ol.extent.getCenter(extent),
-      zoom: 2,
+      //center: ol.extent.getCenter(extent),
+      center: [370, 300],
+      zoom: 3,
       minZoom: 2,
       maxZoom: 4
     })
