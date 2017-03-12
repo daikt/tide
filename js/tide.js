@@ -36,6 +36,16 @@ $(function() {
   var dotlayers = [];
   var icoLayer = null;
 
+  // timer
+  var timer_img = null;
+  var timer_dot = null;
+
+  // display status
+  var DISP_STS_SET = 0;
+  var DISP_STS_EXECUTE = 1;
+  var DISP_STS_END = 2;
+  var disp_sts = DISP_STS_SET;
+
   var extent = [0, 0, 900, 500];
   var projection = new ol.proj.Projection({
     units: 'pixels',
@@ -56,6 +66,8 @@ $(function() {
 
   // delete unuse DOM.
   $('.ol-overlaycontainer-stopevent').remove();
+
+  set();
 
   // サーバから画像ファイル名リストを取得する
   var imgfiles = [];
@@ -127,14 +139,25 @@ $(function() {
   // ---------------------------------
   // Start
   // ---------------------------------
-  var timer=null;
-  var timer_dot=null;
   $('#start_btn').click(function(){
     console.log("start click.");
 
+    if (!(timer_img === null) && !(timer_dot === null)) {
+      console.log("executing...");
+      return false;
+    }
+    if (user_num === 0) {
+      alert("開始点を選択してください");
+      return false;
+    }
+    if (disp_sts === DISP_STS_END) {
+      return false;
+    }
+    btnCtrl(DISP_STS_EXECUTE);
+
     // --- change base map. ---
     var m=1;
-    timer = setInterval(function(){
+    timer_img = setInterval(function(){
       imglayer.setSource(ist_arr[m]); // change image
       var ta = imgfiles[m].substr(30,4);
       $('#date').html('20xx/' + ta.substr(0,2) + '/' + ta.substr(2,2));
@@ -197,16 +220,15 @@ $(function() {
     }
 
     // create ranking area.
-    $('#ctrl_panel').css('height', '437px');
+    $('#ctrl_panel').css('height', (40 * user_num));
     $('#ranking').css('width', '270px');
-    $('#ranking').css('height', '360px');
+    $('#ranking').css('height', (40 * user_num));
     $('#ranking table').remove();
     $('#ranking p').remove();
     $('#ranking').append('<table></table>');
     $('#date').css('display', '');
     $('#ranking').css('clear', '');
     for (var i=0; i<user_num; i++) {
-
       var suffix = "th ";
       if (i === 0) {
         suffix = "st ";
@@ -217,7 +239,6 @@ $(function() {
       }
       var rank = (i + 1);
       rank = rank + suffix + ":";
-
       $('#ranking table').append(
         $('<tr height="40"></tr>')
           .append('<td style="color: white; font-weight=bold; font-size=20px;">' + rank + '</td>')
@@ -266,9 +287,17 @@ $(function() {
   // confirm user points.
   // ---------------------------------
   map.on('click', function(evt) {
+    console.log("map click.");
 
+    if (!(timer_img === null) && !(timer_dot === null)) {
+      console.log("executing...");
+      return false;
+    }
     if (user_num >= MAX_USER) {
       console.log("max user over.");
+      return false;
+    }
+    if (disp_sts != DISP_STS_SET) {
       return false;
     }
 
@@ -327,10 +356,44 @@ $(function() {
   });
 
   // ---------------------------------
-  // Reset
+  // Set
   // ---------------------------------
-  $('#reset_btn').click(function(){
-    console.log("reset click.");
+  $('#set_btn').click(function(){
+    console.log("set click.");
+    if (!(timer_img === null) && !(timer_dot === null)) {
+      console.log("executing...");
+      return false;
+    }
+    set();
+  });
+
+  function set(){
+    if (!(user_num === 0)) {
+      reset();
+    }
+    btnCtrl(DISP_STS_SET);
+
+    $('#ranking').css('width', '226px');
+    $('#ranking').css('height', '320px');
+    $('#ctrl_panel').css('height', '320px');
+    $('#ranking table').remove();
+    $('#ranking p').remove();
+    $('#date').css('display', 'none');
+    $('#ranking').css('clear', 'left');
+    for (var i=0; i<MAX_USER; i++) {
+      var user_no = (i + 1);
+      $('#ranking').append(
+        $('<p></p>').append('<label id="lb' + i + '"># ' + user_no + ' </label>')
+                    .append('<input id="un' + i + '" type="text" size="20" maxlength="10">')
+      );
+      $('#lb' + i).css('color', user_colors[i]).css('font-weight', 'bold');
+    }
+  }
+
+  // ---------------------------------
+  // reset
+  // ---------------------------------
+  function reset() {
     //location.reload();
     stopTimer();
     imglayer.setSource(ist_arr[0]); // reset to initial.png
@@ -349,47 +412,35 @@ $(function() {
     $('#ranking p').remove();
     $('#date').css('display', 'none');
     $('#ranking').css('clear', 'left');
-  });
-
-  // ---------------------------------
-  // Set
-  // ---------------------------------
-  $('#set_btn').click(function(){
-    $('#ranking').css('width', '226px');
-    $('#ranking').css('height', '320px');
-    $('#ctrl_panel').css('height', '320px');
-    $('#ranking table').remove();
-    $('#ranking p').remove();
-    $('#date').css('display', 'none');
-    $('#ranking').css('clear', 'left');
-    for (var i=0; i<MAX_USER; i++) {
-      var user_no = (i + 1);
-      $('#ranking').append(
-        $('<p></p>').append('<label id="lb' + i + '"># ' + user_no + ' </label>')
-                    .append('<input id="un' + i + '" type="text" size="20" maxlength="10">')
-      );
-      $('#lb' + i).css('color', user_colors[i]).css('font-weight', 'bold');
-    }
-    return false;
-  });
-
-  // ---------------------------------
-  // Stop
-  // ---------------------------------
-  $('#stop_btn').click(function(){
-    stopTimer();
-  });
+  }
 
   // ---------------------------------
   // stop timers.
   // ---------------------------------
   function stopTimer() {
-    if (timer != null) {
-      clearInterval(timer);
+    if (timer_img != null) {
+      clearInterval(timer_img);
+      timer_img = null;
     }
     if (timer_dot != null) {
       clearInterval(timer_dot);
+      timer_dot = null;
     }
+    btnCtrl(DISP_STS_END);
+  }
+
+  // ---------------------------------
+  // button status control.
+  // ---------------------------------
+  function btnCtrl(sts) {
+    $('#set_btn').removeAttr('href');
+    $('#start_btn').removeAttr('href');
+    if (sts === DISP_STS_SET) {
+      $('#start_btn').attr('href', '#');
+    } else if (sts === DISP_STS_END) {
+      $('#set_btn').attr('href', '#');
+    }
+    disp_sts = sts;
   }
 
 });
