@@ -175,19 +175,20 @@ $(function() {
       // add dots
       var dist_arr = [];
       var dist_arr_sort = [];
+      var cnt = 0;
       for (var i=0; i<dotlayers.length; i++) {
-
+        cnt = j;
         if (j >= user_data[i].value.length - 1) {
           // data file ended.
-          continue;
+          cnt = (user_data[i].value.length - 2);
+        } else {
+          var coor = getCoor(user_data[i].value[cnt]);
+          var dot = new ol.geom.Circle(coor, 1);
+          var ft = new ol.Feature(dot);
+          dotlayers[i].get('source').addFeature(ft);
         }
 
-        var coor = getCoor(user_data[i].value[j]);
-        var dot = new ol.geom.Circle(coor, 1);
-        var ft = new ol.Feature(dot);
-        dotlayers[i].get('source').addFeature(ft);
-
-        var dist = getDistance(user_data[i].value[j]);
+        var dist = getDistance(user_data[i].value[cnt]);
         dist_arr.push(dist);
         dist_arr_sort.push(dist);
       }
@@ -207,11 +208,9 @@ $(function() {
             $('#lbdist' + k).css('color', user_colors[l]);
           }
         }
-
       }
       dist_arr = [];
       dist_arr_sort = [];
-
       j++;
     }, TIMER_DOT);
 
