@@ -25,6 +25,7 @@ $(function() {
   var OFFSET_LONLAT_j = 10.1;
   var TIMER_IMG = 72; // msec
   var TIMER_DOT = 3; // msec
+  var TIMER_PRE= 30; // msec
 
   // user variable
   var user_num = 0;
@@ -32,6 +33,7 @@ $(function() {
   var user_data = [];
 
   // layers
+  var prelayer = null;
   var imglayer = null;
   var dotlayers = [];
   var icoLayer = null;
@@ -39,6 +41,7 @@ $(function() {
   // timer
   var timer_img = null;
   var timer_dot = null;
+  var timer_pre= null;
 
   // display status
   var DISP_STS_SET = 0;
@@ -93,6 +96,24 @@ $(function() {
         imgfiles.push(imgfile);
         ist_arr.push(ist);
       }
+
+      // --- prefetch base map. ---
+      prelayer = new ol.layer.Image({
+        source: ist_arr[0],
+        name: 'img'
+      });
+      map.addLayer(prelayer);
+      var n=1;
+      timer_pre= setInterval(function(){
+        console.log("### pre : " + n);
+        prelayer.setSource(ist_arr[n]); // change image
+        n++;
+        if (n >= imgfiles.length){
+          clearInterval(timer_pre);
+          timer_pre = null;
+          prelayer = null;
+        }
+      }, TIMER_PRE);
 
       // add image layer.
       imglayer = new ol.layer.Image({
