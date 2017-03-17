@@ -18,14 +18,16 @@ $(function() {
   var CGI_PATH = "/tide/php/getFileList.php";
   var GOAL_ICON = "/tide/img/goal_64.png";
   var GOAL_NAME = "GOAL Island";
-  var GOAL_POINT = [590, 244];
+  //var GOAL_POINT = [590, 244];
+  var GOAL_POINT = [380, 254];
   var OFFSET_i = 1150.0;
   var OFFSET_j = 850.0;
   var OFFSET_LONLAT_i = 115.0;
   var OFFSET_LONLAT_j = 10.1;
   var TIMER_IMG = 72; // msec
-  var TIMER_DOT = 3; // msec
-  var TIMER_PRE= 30; // msec
+  var TIMER_DOT = 3;  // msec
+  var TIMER_PRE = 30; // msec
+  var END_DISTANCE = 200; // (km):if dot goes into this value, game is over.
 
   // user variable
   var user_num = 0;
@@ -210,6 +212,9 @@ $(function() {
         }
 
         var dist = getDistance(user_data[i].value[cnt]);
+        if (dist < END_DISTANCE) {
+          stopTimer();
+        }
         dist_arr.push(dist);
         dist_arr_sort.push(dist);
       }
