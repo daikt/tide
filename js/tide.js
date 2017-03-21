@@ -107,7 +107,7 @@ $(function() {
       map.addLayer(prelayer);
       var n=1;
       timer_pre= setInterval(function(){
-        console.log("### pre : " + n);
+        //console.log("### pre : " + n);
         prelayer.setSource(ist_arr[n]); // change image
         n++;
         if (n >= imgfiles.length){
@@ -468,5 +468,15 @@ $(function() {
     }
     disp_sts = sts;
   }
+
+  // ---------------------------------
+  // load, resize window.
+  // ---------------------------------
+  $(window).on('load resize', function(){
+    var w = $(window).width();
+    var h = $(window).height();
+    var new_point = [w/4, h/4];
+    map.getView().setCenter(new_point);
+  });
 
 });
