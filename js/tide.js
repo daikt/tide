@@ -18,8 +18,8 @@ $(function() {
   var CGI_PATH = "/tide/php/getFileList.php";
   var GOAL_ICON = "/tide/img/goal_64.png";
   var GOAL_NAME = "GOAL Island";
-  //var GOAL_POINT = [590, 244];
-  var GOAL_POINT = [380, 254];
+  var GOAL_POINT = [590, 244];
+  //var GOAL_POINT = [380, 254];
   var OFFSET_i = 1150.0;
   var OFFSET_j = 850.0;
   var OFFSET_LONLAT_i = 115.0;
@@ -90,6 +90,10 @@ $(function() {
       var data = $.parseJSON(json);
       for (var i=0; data[i]; i++) {
         var imgfile = "/tide" + data[i].image.substr(2);
+        var chkname = imgfile.split("/");
+        if (chkname[chkname.length-1] === "Thumbs.db") {
+          continue;
+        }
         var ist = new ol.source.ImageStatic({
                    url: imgfile,
                    projection: map.getView().getProjection(),
